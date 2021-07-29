@@ -28,23 +28,23 @@ public:
         double sumy = 0;
         std::cout << "before first loop" << std::endl;
         __m256d xs = _mm256_load_pd(&x[0]);
-//        __m256d ys = _mm256_load_pd(&y[0]);
+        __m256d ys = _mm256_load_pd(&y[0]);
         int i = 4;
         int species_len = x.size() - x.size() % i;
         for (; i < species_len; i += 4) {
             std::cout << "loop 1 iteration: " << i  << std::endl;
             xs = _mm256_add_pd(xs, _mm256_load_pd(&x[i]));
-//            ys = _mm256_add_pd(ys, _mm256_load_pd(&y[i]));
+            ys = _mm256_add_pd(ys, _mm256_load_pd(&y[i]));
         }
 
         std::cout << "after first loop" << std::endl;
 
         sumx += xs[0] + xs[1] + xs[2] + xs[3];
-//        sumy += ys[0] + ys[1] + ys[2] + ys[3];
+        sumy += ys[0] + ys[1] + ys[2] + ys[3];
 
         for (; i < x.size(); ++i) {
             sumx += x[i];
-//            sumy += y[i];
+            sumy += y[i];
         }
 
         double xbar = sumx / x.size();
@@ -56,32 +56,32 @@ public:
         i = 0;
         std::cout << "before second loop" << std::endl;
         xs = _mm256_set1_pd(0);
-//        ys = _mm256_set1_pd(0);
+        ys = _mm256_set1_pd(0);
         for (; i < species_len; i += 4) {
             __m256d vxbar = _mm256_set1_pd(xbar);
-//            __m256d vybar = _mm256_set1_pd(ybar);
+            __m256d vybar = _mm256_set1_pd(ybar);
 
             __m256d x_sub = _mm256_sub_pd(_mm256_load_pd(&x[i]), vxbar);
-//            __m256d y_sub = _mm256_sub_pd(_mm256_load_pd(&y[0]), vxbar);
+            __m256d y_sub = _mm256_sub_pd(_mm256_load_pd(&y[0]), vxbar);
             xs = _mm256_add_pd(xs, _mm256_mul_pd(x_sub, x_sub));
-//            xs = _mm256_add_pd(xs, _mm256_mul_pd(x_sub, y_sub));
+            xs = _mm256_add_pd(xs, _mm256_mul_pd(x_sub, y_sub));
 
 
         }
         std::cout << "after second loop" << std::endl;
         xxbar += xs[0] + xs[1] + xs[2] + xs[3];
-//        xybar += ys[0] + ys[1] + ys[2] + ys[3];
+        xybar += ys[0] + ys[1] + ys[2] + ys[3];
 
         for (; i < x.size(); ++i) {
             xxbar += (x[i] - xbar) * (x[i] - xbar); // vxbar * vxbar
-//            xybar += (x[i] - xbar) * (y[i] - ybar);
+            xybar += (x[i] - xbar) * (y[i] - ybar);
 
         }
 
-//        slope = xybar / xxbar;
-//        intercept = ybar - slope * xbar;
-        slope = 1;
-        intercept =0;
+        slope = xybar / xxbar;
+        intercept = ybar - slope * xbar;
+//        slope = 1;
+//        intercept =0;
     }
 
     double predict(const double &x) {
