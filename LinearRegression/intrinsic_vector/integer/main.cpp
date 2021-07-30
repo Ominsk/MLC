@@ -9,8 +9,8 @@ int main() {
 
   VectorLinearRegression vectorLinearRegression;
 
-  std::vector<double> x;
-  std::vector<double> y;
+  std::vector<int> x;
+  std::vector<int> y;
 
   for (int i = 0; i < 20; ++i) {
     double ys = i - std::rand() % 2;

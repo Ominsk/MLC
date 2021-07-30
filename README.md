@@ -19,3 +19,8 @@ To run the code with vector optimization you need to include the `-O3` flag.
 g++ vector_linear_regression.cpp -O3 -std=c++11 -isystem benchmark/include -Lbenchmark/build/src -lbenchmark -lpthread -o out
 ./out
 ```
+
+obtain intel assembly
+```
+objdump -M intel -d program
+```

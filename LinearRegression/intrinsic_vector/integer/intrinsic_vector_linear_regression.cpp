@@ -9,13 +9,12 @@
 
 #define ITERATIONS 1
 
-
-static void BM_VLR_DOUBLE(benchmark::State& state) {
-    std::vector<double> x;
-    std::vector<double> y;
+static void BM_VLR_INTEGER(benchmark::State& state) {
+    std::vector<int> x;
+    std::vector<int> y;
 
     for (int i = 0; i < LIMIT; ++i) {
-        double ys = i - rand() % 1;
+        int ys = i - rand() % 1;
         x.push_back(i);
         y.push_back(ys);
     }
@@ -29,11 +28,8 @@ static void BM_VLR_DOUBLE(benchmark::State& state) {
 }
 
 
-
 // Register the function as a benchmark
-BENCHMARK(BM_VLR_DOUBLE)->Unit(benchmark::kMillisecond);
-
+BENCHMARK(BM_VLR_INTEGER)->Iterations(ITERATIONS)->Unit(benchmark::kMillisecond);
 
 BENCHMARK_MAIN();
 
-// objdump -d -M intel ./lr > LinearRegression/vectorized.ass

@@ -23,23 +23,23 @@ private:
     double slope;
 
 public:
-    void fit(const std::vector<double> x, const std::vector<double> y) {
-        double sumx = 0;
-        double sumy = 0;
+    void fit(const std::vector<int> x, const std::vector<int> y) {
+        int sumx = 0;
+        int sumy = 0;
         // __m256d xs = _mm256_load_pd(&x[0]);
         // __m256d ys = _mm256_load_pd(&y[0]); // --> segmentation fault in not aligned data
-        __m256d xs = _mm256_loadu_pd(&x[0]);
-        __m256d ys = _mm256_loadu_pd(&y[0]);
-        int i = 4;
+        __m256i xs = _mm256_loadu_si256((__m256i*)&x[0]);
+        __m256i ys = _mm256_loadu_si256((__m256i*)&y[0]);
+        int i = 8;
         int species_len = x.size() - x.size() % i;
-        for (; i < species_len; i += 4) {
-            xs = _mm256_add_pd(xs, _mm256_loadu_pd(&x[i]));
-            ys = _mm256_add_pd(ys, _mm256_loadu_pd(&y[i]));
+        for (; i < species_len; i += 8) {
+            xs = _mm256_add_epi32(xs, _mm256_loadu_si256((__m256i*)&x[i]));
+            ys = _mm256_add_epi32(ys, _mm256_loadu_si256((__m256i*)&y[i]));
         }
 
 
-        sumx += xs[0] + xs[1] + xs[2] + xs[3];
-        sumy += ys[0] + ys[1] + ys[2] + ys[3];
+        sumx += xs[0] + xs[1] + xs[2] + xs[3] + xs[4] + xs[5] + xs[6] + xs[7];
+        sumy += ys[0] + ys[1] + ys[2] + ys[3] + ys[4] + ys[5] + ys[6] + ys[7];
 
         for (; i < x.size(); ++i) {
             sumx += x[i];
@@ -53,15 +53,15 @@ public:
         double xybar = 0;
 
         i = 0;
-        xs = _mm256_set1_pd(0);
-        ys = _mm256_set1_pd(0);
-        __m256d vxbar = _mm256_set1_pd(xbar);
-        __m256d vybar = _mm256_set1_pd(ybar);
+        xs = _mm256_set1_epi32(0);
+        ys = _mm256_set1_epi32(0);
+        __m256i vxbar = _mm256_set1_epi32(xbar);
+        __m256i vybar = _mm256_set1_epi32(ybar);
         for (; i < species_len; i += 4) {
-            __m256d x_sub = _mm256_sub_pd(_mm256_loadu_pd(&x[i]), vxbar);
-            __m256d y_sub = _mm256_sub_pd(_mm256_loadu_pd(&y[i]), vxbar);
-            xs = _mm256_add_pd(xs, _mm256_mul_pd(x_sub, x_sub));
-            xs = _mm256_add_pd(xs, _mm256_mul_pd(x_sub, y_sub));
+            __m256i x_sub = _mm256_sub_epi32(_mm256_loadu_si256((__m256i*)&x[i]), vxbar);
+            __m256i y_sub = _mm256_sub_epi32(_mm256_loadu_si256((__m256i*)&y[i]), vxbar);
+            xs = _mm256_add_epi32(xs, _mm256_mul_epi32(x_sub, x_sub));
+            ys = _mm256_add_epi32(xs, _mm256_mul_epi32(x_sub, y_sub));
 
 
         }
@@ -80,15 +80,15 @@ public:
 
     }
 
-    double predict(const double &x) {
+    int predict(const int x) {
         return slope * x + intercept;
     }
 
-    double get_intercept() {
+    int get_intercept() {
         return intercept;
     }
 
-    double get_slope() {
+    int get_slope() {
         return slope;
     }
 };
