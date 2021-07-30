@@ -6,7 +6,7 @@
 //#pragma GCC target("avx2")  //Enable AVX2
 #include <benchmark/benchmark.h>
 #include "linear_regression.h"
-#define ITERATIONS 100;
+#define ITERATIONS 1
 
 static void BM_LR_DOUBLE(benchmark::State& state) {
     std::vector<double> x;

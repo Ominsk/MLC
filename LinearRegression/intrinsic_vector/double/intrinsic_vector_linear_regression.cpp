@@ -5,7 +5,7 @@
 #include <benchmark/benchmark.h>
 #include <vector>
 #include <iostream>
-#include "vector_linear_regression.h"
+#include "intrinsic_vector_linear_regression.h"
 
 #define ITERATIONS 1
 
@@ -84,7 +84,7 @@ static void BM_VLR_DOUBLE(benchmark::State& state) {
 //}
 
 // Register the function as a benchmark
-BENCHMARK(BM_VLR_DOUBLE)->Iterations(ITERATIONS)->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_VLR_DOUBLE)->Unit(benchmark::kMillisecond);
 //BENCHMARK(BM_VLR_INTEGER)->Iterations(ITERATIONS)->Unit(benchmark::kMillisecond);
 //BENCHMARK(BM_VLR_LONG)->Iterations(ITERATIONS)->Unit(benchmark::kMillisecond);
 //BENCHMARK(BM_VLR_FLOAT)->Iterations(ITERATIONS)->Unit(benchmark::kMillisecond);

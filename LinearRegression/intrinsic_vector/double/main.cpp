@@ -3,7 +3,7 @@
 //
 
 #include <cstdlib>
-#include "vector_linear_regression.h"
+#include "intrinsic_vector_linear_regression.h"
 
 int main() {
 
