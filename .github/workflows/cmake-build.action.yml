@@ -16,18 +16,22 @@ on:
       steps:
         - uses: actions/checkout@v2
         - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install ninja-build cmake
-          ninja --version
-          cmake --version
-          gcc --version
+          shell: bash
+          run: |
+            sudo apt-get update
+            sudo apt-get install ninja-build cmake
+            ninja --version
+            cmake --version
+            gcc --version
         - name: Configure
+          shell: bash
           run: |
             mkdir build
             cmake -S . -B env.buildDir
         - name: Build
+          shell: bash
           run: cmake --build build
         - name: testing
+          shell: bash
           run: ./build/main_test
 
