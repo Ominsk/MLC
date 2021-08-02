@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 
-  jobs:
+jobs:
     build:
       runs-on: ubuntu-latest
 
@@ -34,4 +34,3 @@ on:
         - name: testing
           shell: bash
           run: ./build/main_test
-
