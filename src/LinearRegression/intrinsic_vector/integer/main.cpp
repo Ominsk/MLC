@@ -3,19 +3,19 @@
 //
 
 #include <cstdlib>
-#include "intrinsic_vector_linear_regression.h"
+#include "integer_intrinsic_vector_linear_regression.h"
 
 int main() {
 
-  VectorLinearRegression vectorLinearRegression;
+  IntVectorLinearRegression vectorLinearRegression;
 
-  std::vector<double> x;
-  std::vector<double> y;
+  int * x = new int[20];
+  int * y = new int[20];
 
   for (int i = 0; i < 20; ++i) {
     double ys = i - std::rand() % 2;
-    x.push_back(i);
-    y.push_back(ys);
+    x[i] = i;
+    y[i] = ys;
   }
 
   vectorLinearRegression.fit(x, y);

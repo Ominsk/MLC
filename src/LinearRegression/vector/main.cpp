@@ -9,16 +9,16 @@ int main() {
 
   VectorLinearRegression<double> vectorLinearRegression;
 
-  std::vector<double> x;
-  std::vector<double> y;
+  double * x = new double[LIMIT];
+  double * y = new double[LIMIT];
 
   for (int i = 0; i < LIMIT; ++i) {
-    double ys = i - std::rand() % 1;
-    x.push_back(i);
-    y.push_back(ys);
+      double ys = i - std::rand() % 2;
+      x[i] = i;
+      y[i] = ys;
   }
 
-  vectorLinearRegression.fit(x, y);
+  vectorLinearRegression.fit(x, y, LIMIT);
 
   return vectorLinearRegression.predict(10);
 }

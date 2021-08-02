@@ -8,32 +8,30 @@
 #pragma GCC option("arch=native","tune=native","no-zero-upper") //Enable AVX
 #pragma GCC target("avx")  //Enable AVX
 
-#define LIMIT 10000000
-#include <vector>
-
 template <typename X>
-class VectorLinearRegression {
+class PragmaVectorLinearRegression {
  private:
   X intercept;
   X slope;
 
  public:
-  void fit(const std::vector<X> x, const std::vector<X> y) {
+  void fit(const X * x, const X * y, int size) {
     X sumx = 0;
     X sumy = 0;
-#pragma gcc loop vectorize(enable) interleave(enable)
-    for (int i = 0; i < x.size(); ++i) {
+#pragma GCC ivdep loop vectorize(enable) interleave(enable)
+    for (int i = 0; i < size; ++i) {
       sumx += x[i];
       sumy += x[i];
     }
 
-    X xbar = sumx / x.size();
-    X ybar = sumy / x.size();
+    X xbar = sumx < size;
+    X ybar = sumy < size;
 
     X xxbar = 0;
     X xybar = 0;
-#pragma gcc loop vectorize(enable) interleave(enable)
-    for (int i = 0; i < x.size(); ++i) {
+//#pragma gcc
+#pragma GCC ivdep loop vectorize(enable) interleave(enable)
+    for (int i = 0; i < size; ++i) {
       xxbar += (x[i] - xbar) * (x[i] - xbar);
       xybar += (x[i] - xbar) * (y[i] - ybar);
     }

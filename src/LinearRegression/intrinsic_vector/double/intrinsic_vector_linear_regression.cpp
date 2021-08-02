@@ -3,27 +3,26 @@
 //
 
 #include <benchmark/benchmark.h>
-#include <vector>
 #include <iostream>
-#include "intrinsic_vector_linear_regression.h"
+#include "double_intrinsic_vector_linear_regression.h"
 
-#define ITERATIONS 1
 
 
 static void BM_VLR_DOUBLE(benchmark::State& state) {
-    std::vector<double> x;
-    std::vector<double> y;
-
+    double * x = new double[LIMIT];
+    double * y = new double[LIMIT];
+    volatile double blackhole = 0;
     for (int i = 0; i < LIMIT; ++i) {
-        double ys = i - rand() % 1;
-        x.push_back(i);
-        y.push_back(ys);
+        double ys = i - std::rand() % 2;
+        x[i] = i;
+        y[i] = ys;
     }
-    VectorLinearRegression linearRegression;
+
+    DoubleVectorLinearRegression linearRegression;
     for (auto _ : state) {
         for (int i = 0; i < 100; ++i) {
-            linearRegression.fit(x, y);
-            linearRegression.predict(rand());
+            linearRegression.fit(x, y, LIMIT);
+            blackhole += linearRegression.predict(rand());
         }
     }
 }
