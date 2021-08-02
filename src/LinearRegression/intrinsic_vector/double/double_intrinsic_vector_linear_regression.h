@@ -57,7 +57,7 @@ public:
             __m256d x_sub = _mm256_sub_pd(_mm256_loadu_pd(&x[i]), vxbar);
             __m256d y_sub = _mm256_sub_pd(_mm256_loadu_pd(&y[i]), vxbar);
             xs = _mm256_add_pd(xs, _mm256_mul_pd(x_sub, x_sub));
-            xs = _mm256_add_pd(xs, _mm256_mul_pd(x_sub, y_sub));
+            ys = _mm256_add_pd(ys, _mm256_mul_pd(x_sub, y_sub));
 
 
         }

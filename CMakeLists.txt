@@ -3,6 +3,7 @@ project(BMLC)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_FLAGS "-O3 -mavx2")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
 
 # Libraries google test and google benchmark
 include(FetchContent)

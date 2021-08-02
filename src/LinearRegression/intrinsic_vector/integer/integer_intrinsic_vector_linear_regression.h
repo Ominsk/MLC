@@ -15,8 +15,8 @@
 
 class IntVectorLinearRegression {
 private:
-    double intercept;
-    double slope;
+    int intercept;
+    int slope;
 
 public:
     void fit(const int * x, const int * y, const int size) {
@@ -26,49 +26,59 @@ public:
         // __m256d ys = _mm256_load_pd(&y[0]); // --> segmentation fault in not aligned data
         __m256i xs = _mm256_loadu_si256((__m256i*)&x[0]);
         __m256i ys = _mm256_loadu_si256((__m256i*)&y[0]);
+
+
         int i = 8;
         int species_len = size - size % i;
         for (; i < species_len; i += 8) {
-            xs = _mm256_add_epi32(xs, _mm256_loadu_si256((__m256i*)&x[i]));
-            ys = _mm256_add_epi32(ys, _mm256_loadu_si256((__m256i*)&y[i]));
+            xs = _mm256_add_epi32(xs, _mm256_loadu_si256(reinterpret_cast<const __m256i_u *>(&x[i])));
+            ys = _mm256_add_epi32(ys, _mm256_loadu_si256(reinterpret_cast<const __m256i_u *>(&y[i])));
+
         }
 
-
-        sumx += xs[0] + xs[1] + xs[2] + xs[3] + xs[4] + xs[5] + xs[6] + xs[7];
-        sumy += ys[0] + ys[1] + ys[2] + ys[3] + ys[4] + ys[5] + ys[6] + ys[7];
 
         for (; i < size; ++i) {
             sumx += x[i];
             sumy += y[i];
         }
 
-        double xbar = sumx / size;
-        double ybar = sumy / size;
+        for (i=0; i < 4; ++i) {
+            sumx += (int) xs[i] + (int) (xs[i] >> 32);
+            sumy += (int) ys[i] + (int) (ys[i] >> 32);
+        }
 
-        double xxbar = 0;
-        double xybar = 0;
+
+        int xbar = sumx / size;
+        int ybar = sumy / size;
+
+
+        int xxbar = 0;
+        int xybar = 0;
 
         i = 0;
         xs = _mm256_set1_epi32(0);
         ys = _mm256_set1_epi32(0);
         __m256i vxbar = _mm256_set1_epi32(xbar);
         __m256i vybar = _mm256_set1_epi32(ybar);
-        for (; i < species_len; i += 4) {
+        for (; i < species_len; i += 8) {
             __m256i x_sub = _mm256_sub_epi32(_mm256_loadu_si256((__m256i*)&x[i]), vxbar);
-            __m256i y_sub = _mm256_sub_epi32(_mm256_loadu_si256((__m256i*)&y[i]), vxbar);
+            __m256i y_sub = _mm256_sub_epi32(_mm256_loadu_si256((__m256i*)&y[i]), vybar);
             xs = _mm256_add_epi32(xs, _mm256_mul_epi32(x_sub, x_sub));
-            ys = _mm256_add_epi32(xs, _mm256_mul_epi32(x_sub, y_sub));
+            ys = _mm256_add_epi32(ys, _mm256_mul_epi32(x_sub, y_sub));
 
 
         }
 
-        xxbar += xs[0] + xs[1] + xs[2] + xs[3];
-        xybar += ys[0] + ys[1] + ys[2] + ys[3];
 
         for (; i < size; ++i) {
             xxbar += (x[i] - xbar) * (x[i] - xbar); // vxbar * vxbar
             xybar += (x[i] - xbar) * (y[i] - ybar);
 
+        }
+
+        for (i=0; i < 4; ++i) {
+            xxbar += (int) xs[i] + (int) (xs[i] >> 32);
+            xybar += (int) ys[i] + (int) (ys[i] >> 32);
         }
 
         slope = xybar / xxbar;
