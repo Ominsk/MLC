@@ -21,11 +21,11 @@ class PragmaVectorLinearRegression {
 #pragma GCC ivdep loop vectorize(enable) interleave(enable)
     for (int i = 0; i < size; ++i) {
       sumx += x[i];
-      sumy += x[i];
+      sumy += y[i];
     }
 
-    X xbar = sumx < size;
-    X ybar = sumy < size;
+    X xbar = sumx / size;
+    X ybar = sumy / size;
 
     X xxbar = 0;
     X xybar = 0;

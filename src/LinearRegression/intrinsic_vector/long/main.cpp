@@ -3,13 +3,13 @@
 //
 
 #include <cstdlib>
-#include "double_intrinsic_vector_linear_regression.h"
+#include "long_intrinsic_vector_linear_regression.h"
 
 #define SIZE 10000000
 
 int main() {
 
-    DoubleVectorLinearRegression vectorLinearRegression;
+  LongVectorLinearRegression vectorLinearRegression;
 
   double * x = new double[SIZE];
   double * y = new double[SIZE];

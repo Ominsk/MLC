@@ -5,8 +5,10 @@
 #include <gtest/gtest.h>
 #include <iostream>
 #include "../src/LinearRegression/scalar/linear_regression.h"
+#include "../src/LinearRegression/vector/vector_linear_regression.h"
 #include "../src/LinearRegression/intrinsic_vector/integer/integer_intrinsic_vector_linear_regression.h"
 #include "../src/LinearRegression/intrinsic_vector/double/double_intrinsic_vector_linear_regression.h"
+#include "../src/LinearRegression/intrinsic_vector/long/long_intrinsic_vector_linear_regression.h"
 
 #define LIMIT 100000
 
@@ -135,6 +137,72 @@ TEST(NegativeLinearRegressionDouble, BasicAssertions) {
     }
 
     LinearRegression<double> linearRegression{};
+
+    linearRegression.fit(x, y, LIMIT);
+
+    EXPECT_EQ(-1, linearRegression.get_slope());
+    EXPECT_EQ(-1, linearRegression.get_intercept());
+
+    EXPECT_EQ(-6, linearRegression.predict(5));
+    EXPECT_EQ(9, linearRegression.predict(-10));
+    EXPECT_EQ(-93, linearRegression.predict(92));
+}
+
+//PRAGMA
+TEST(ConstantPragmaLinearRegressionInt, BasicAssertions) {
+    // constant function for integer Linear Regression
+    int * x = new int[LIMIT];
+    int * y = new int[LIMIT];
+
+    for (int i = 0; i <  LIMIT; ++i) {
+        x[i] = i;
+        y[i] = 1;
+    }
+
+    PragmaVectorLinearRegression<int> linearRegression{};
+
+    linearRegression.fit(x, y, LIMIT);
+
+    EXPECT_EQ(0, linearRegression.get_slope());
+    EXPECT_EQ(1, linearRegression.get_intercept());
+
+    EXPECT_EQ(1, linearRegression.predict(5));
+    EXPECT_EQ(1, linearRegression.predict(-10));
+    EXPECT_EQ(1, linearRegression.predict(92));
+}
+
+TEST(PositivePragmaLinearRegressionInt, BasicAssertions) {
+    // constant function for integer Linear Regression
+    int * x = new int[LIMIT];
+    int * y = new int[LIMIT];
+
+    for (int i = 0; i <  LIMIT; ++i) {
+        x[i] = i;
+        y[i] = i + 1;
+    }
+
+    PragmaVectorLinearRegression<int> linearRegression{};
+
+    linearRegression.fit(x, y, LIMIT);
+
+    EXPECT_EQ(1, linearRegression.get_slope());
+    EXPECT_EQ(1, linearRegression.get_intercept());
+
+    EXPECT_EQ(6, linearRegression.predict(5));
+    EXPECT_EQ(-9, linearRegression.predict(-10));
+    EXPECT_EQ(93, linearRegression.predict(92));
+}
+
+TEST(NegativePragmaLinearRegressionInt, BasicAssertions) {
+    int * x = new int[LIMIT];
+    int * y = new int[LIMIT];
+
+    for (int i = 0; i <  LIMIT; ++i) {
+        x[i] = i;
+        y[i] = (i + 1) * -1;
+    }
+
+    PragmaVectorLinearRegression<int> linearRegression{};
 
     linearRegression.fit(x, y, LIMIT);
 
@@ -276,3 +344,68 @@ TEST(NegativeVectorLinearRegressionDouble, BasicAssertions) {
     EXPECT_EQ(9, linearRegression.predict(-10));
     EXPECT_EQ(-93, linearRegression.predict(92));
 }
+
+TEST(ConstantVectorLinearRegressionLong, BasicAssertions) {
+    // constant function for integer Linear Regression
+    auto * x = new long[LIMIT];
+    auto * y = new long[LIMIT];
+
+    for (int i = 0; i <  LIMIT; ++i) {
+        x[i] = i;
+        y[i] = 1;
+    }
+
+    LongVectorLinearRegression linearRegression{};
+
+    linearRegression.fit(x, y, LIMIT);
+
+    EXPECT_EQ(0, linearRegression.get_slope());
+    EXPECT_EQ(1, linearRegression.get_intercept());
+
+    EXPECT_EQ(1, linearRegression.predict(5));
+    EXPECT_EQ(1, linearRegression.predict(-10));
+    EXPECT_EQ(1, linearRegression.predict(92));
+}
+
+TEST(PositiveVectorLinearRegressionLong, BasicAssertions) {
+    // constant function for integer Linear Regression
+    long * x = new long[LIMIT];
+    long * y = new long[LIMIT];
+
+    for (int i = 0; i <  LIMIT; ++i) {
+        x[i] = i;
+        y[i] = i + 1;
+    }
+
+    LongVectorLinearRegression linearRegression{};
+
+    linearRegression.fit(x, y, LIMIT);
+
+    EXPECT_EQ(1, linearRegression.get_slope());
+    EXPECT_EQ(1, linearRegression.get_intercept());
+
+    EXPECT_EQ(6, linearRegression.predict(5));
+    EXPECT_EQ(-9, linearRegression.predict(-10));
+    EXPECT_EQ(93, linearRegression.predict(92));
+}
+
+//TEST(NegativeVectorLinearRegressionLong, BasicAssertions) {
+//    long * x = new long[LIMIT];
+//    long * y = new long[LIMIT];
+//
+//    for (int i = 0; i <  LIMIT; ++i) {
+//        x[i] = i;
+//        y[i] = (i + 1) * -1;
+//    }
+//
+//    LongVectorLinearRegression linearRegression{};
+//
+//    linearRegression.fit(x, y, LIMIT);
+//
+//    EXPECT_EQ(-1, linearRegression.get_slope());
+//    EXPECT_EQ(-1, linearRegression.get_intercept());
+//
+//    EXPECT_EQ(-6, linearRegression.predict(5));
+//    EXPECT_EQ(9, linearRegression.predict(-10));
+//    EXPECT_EQ(-93, linearRegression.predict(92));
+//}
