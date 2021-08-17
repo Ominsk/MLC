@@ -32,10 +32,12 @@ add_executable(
         src/main.cpp
 )
 
+
 target_link_libraries(
         main_test
         gtest_main
 )
+
 
 ## change this if you install google benchmark not in home directory
 target_link_libraries(main PUBLIC benchmark benchmark_main pthread)

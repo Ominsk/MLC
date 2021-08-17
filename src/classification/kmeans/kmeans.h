@@ -5,7 +5,7 @@
 #ifndef BMLC_KMEANS_H
 #define BMLC_KMEANS_H
 
-
+#include <iostream>
 template <typename X>
 class Kmeans {
 private:
@@ -34,15 +34,20 @@ private:
         }
         int * cluster_sizes = new int[n_cluster];
 
-        for (int i = 0; i < this->size; ++i) {
+        for (int i = 0; i < n_cluster ; i++) {
+           cluster_sizes[i] = 0;
+        }
+
+        for (int i = 0; i < this->size; i++) {
             cluster_sizes[cluster_ids[i]] += 1;
         }
+
 
         for (int i = 0; i < this->n_cluster; ++i) {
             for (int j = 0; j < this->size; j++) {
                 if (i == this->cluster_ids[j]) {
                     for (int k = 0; k < this->dimension; k++) {
-                        medeoids[i][k] = x[j][k] / cluster_sizes[i];
+                        medeoids[i][k] += x[j][k] / cluster_sizes[i];
                     }
                 }
             }
@@ -57,7 +62,7 @@ private:
 
 
         for (int i = 0; i < this->n_cluster; ++i) {
-            X min_dist = 1000000000;
+            X min_dist = 1000;
             for (int j = 0; j < this->size; ++j) {
                 if (medeoidDistanceMatrix[i][j] < min_dist) {
                     min_dist = medeoidDistanceMatrix[i][j];
@@ -65,6 +70,8 @@ private:
                 }
             }
         }
+
+
 
         for (int i = 0; i < this->n_cluster; ++i) {
             delete [] medeoids[i];
@@ -79,8 +86,8 @@ private:
 
     X euclideanDistance(X * x, X * y) {
         X dist = 0;
-
         for (int i = 0; i < this->dimension; i++) {
+
             dist += (x[i] - y[i]) * (x[i] - y[i]);
         }
 
@@ -89,9 +96,9 @@ private:
     }
 
     void l2Matrix(X ** x, X ** centroids, X ** distanceMatrix) {
-
         for(int i = 0; i < this->size; i++) {
             for (int j = 0; j < this->n_cluster; j++) {
+
                 distanceMatrix[i][j] = euclideanDistance(centroids[j], x[i]);
             }
         }
@@ -102,6 +109,7 @@ private:
         for(int i = 0; i < this->n_cluster; i++) {
             for (int j = 0; j < this->size; j++) {
                 distanceMatrix[i][j] = euclideanDistance(medeoids[i], x[j]);
+
             }
         }
     }
@@ -122,10 +130,9 @@ public:
             this->centroids[i] = new X[dimension];
         }
 
-        this->cluster_ids = new int(size);
+        this->cluster_ids = new int[size];
 
         fixedCentroid(x);
-
 
         while (true) {
             bool converged = true;
@@ -136,10 +143,11 @@ public:
                 X min = distanceMatrix[i][0];
                 int min_pos = 0;
 
-                for (int j = 0; j < this->n_cluster; j++) {
+
+                for (int j = 1; j < this->n_cluster; j++) {
                     if (distanceMatrix[i][j] < min) {
                         min = distanceMatrix[i][j];
-                        min_pos = i;
+                        min_pos = j;
                     }
                 }
 
@@ -158,19 +166,21 @@ public:
         }
 
 
+
+
         for (int i = 0; i < size; i++) {
-            delete [] this->distanceMatrix[i];
+            delete []  this->distanceMatrix[i];
         }
         delete [] this->distanceMatrix;
 
-        for (int i = 0; i < n_cluster; ++i) {
-            delete [] this->centroids[i];
-        }
-        delete [] this->centroids;
+//        for (int i = 0; i < n_cluster; ++i) {
+//            delete [] this->centroids[i];
+//        }
+//        delete [] this->centroids;
         delete [] this->cluster_ids;
     }
 
-    int predict(const X * x) {
+    int predict( X * x) {
         int cluster_id = 0;
         X min = 100000000000000;
         for (int i = 0; i < n_cluster; i++) {

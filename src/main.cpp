@@ -227,19 +227,19 @@ static void BM_PLR_FLOAT(benchmark::State& state) {
 
 
 // Register the function as a benchmark
-BENCHMARK(BM_LR_DOUBLE)->Unit(benchmark::kMillisecond)->Repetitions(100)->ReportAggregatesOnly(true);
-BENCHMARK(BM_LR_INTEGER)->Unit(benchmark::kMillisecond)->Repetitions(100)->ReportAggregatesOnly(true);
-BENCHMARK(BM_LR_LONG)->Unit(benchmark::kMillisecond)->Repetitions(100)->ReportAggregatesOnly(true);
-BENCHMARK(BM_LR_FLOAT)->Unit(benchmark::kMillisecond)->Repetitions(10)->ReportAggregatesOnly(true);
+BENCHMARK(BM_LR_DOUBLE)->Unit(benchmark::kMillisecond)->Repetitions(3)->ReportAggregatesOnly(true);
+BENCHMARK(BM_LR_INTEGER)->Unit(benchmark::kMillisecond)->Repetitions(3)->ReportAggregatesOnly(true);
+BENCHMARK(BM_LR_LONG)->Unit(benchmark::kMillisecond)->Repetitions(3)->ReportAggregatesOnly(true);
+BENCHMARK(BM_LR_FLOAT)->Unit(benchmark::kMillisecond)->Repetitions(3)->ReportAggregatesOnly(true);
 
-BENCHMARK(BM_VLR_DOUBLE)->Unit(benchmark::kMillisecond)->Repetitions(100)->ReportAggregatesOnly(true);
-BENCHMARK(BM_VLR_INTEGER)->Unit(benchmark::kMillisecond)->Repetitions(100)->ReportAggregatesOnly(true);
-BENCHMARK(BM_VLR_LONG)->Unit(benchmark::kMillisecond)->Repetitions(100)->ReportAggregatesOnly(true);
+BENCHMARK(BM_VLR_DOUBLE)->Unit(benchmark::kMillisecond)->Repetitions(3)->ReportAggregatesOnly(true);
+BENCHMARK(BM_VLR_INTEGER)->Unit(benchmark::kMillisecond)->Repetitions(3)->ReportAggregatesOnly(true);
+BENCHMARK(BM_VLR_LONG)->Unit(benchmark::kMillisecond)->Repetitions(3)->ReportAggregatesOnly(true);
 
-BENCHMARK(BM_PLR_DOUBLE)->Unit(benchmark::kMillisecond)->Repetitions(100)->ReportAggregatesOnly(true);
-BENCHMARK(BM_PLR_INTEGER)->Unit(benchmark::kMillisecond)->Repetitions(100)->ReportAggregatesOnly(true);
-BENCHMARK(BM_PLR_LONG)->Unit(benchmark::kMillisecond)->Repetitions(100)->ReportAggregatesOnly(true);
-BENCHMARK(BM_PLR_FLOAT)->Unit(benchmark::kMillisecond)->Repetitions(100)->ReportAggregatesOnly(true);
+BENCHMARK(BM_PLR_DOUBLE)->Unit(benchmark::kMillisecond)->Repetitions(3)->ReportAggregatesOnly(true);
+BENCHMARK(BM_PLR_INTEGER)->Unit(benchmark::kMillisecond)->Repetitions(3)->ReportAggregatesOnly(true);
+BENCHMARK(BM_PLR_LONG)->Unit(benchmark::kMillisecond)->Repetitions(3)->ReportAggregatesOnly(true);
+BENCHMARK(BM_PLR_FLOAT)->Unit(benchmark::kMillisecond)->Repetitions(3)->ReportAggregatesOnly(true);
 
 
 BENCHMARK_MAIN();
