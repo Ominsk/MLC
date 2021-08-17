@@ -10,6 +10,8 @@
 #include "../src/LinearRegression/intrinsic_vector/double/double_intrinsic_vector_linear_regression.h"
 #include "../src/LinearRegression/intrinsic_vector/long/long_intrinsic_vector_linear_regression.h"
 
+#include "classification/kmeans/kmeans_test.h"
+
 #define LIMIT 100000
 
 // Demonstrate some basic assertions.

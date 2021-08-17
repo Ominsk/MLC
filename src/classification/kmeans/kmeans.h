@@ -192,6 +192,10 @@ public:
 
         return cluster_id;
     }
+
+    X ** getCentroids() {
+        return centroids;
+    }
 };
 
 
