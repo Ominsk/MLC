@@ -5,7 +5,7 @@
 #ifndef BMLC_KMEANS_TEST_H
 #define BMLC_KMEANS_TEST_H
 
-#include "../../../src/classification/kmeans/kmeans.h"
+#include "../../../src/classification/kmeans/scalar/kmeans.h"
 
 TEST(KMeansBasicScalar, BasicAssertions) {
     // Expect two strings not to be equal.
