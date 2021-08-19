@@ -48,36 +48,28 @@ private:
 
         //TODO vectorize
 
-        int upperbound = size - size % 8;
+        int upperbound = size - size % DOUBLE_SPECIES_LENGTH;
+        std::cout << "upperbound: " << upperbound << std::endl;
         if (n_cluster < DOUBLE_SPECIES_LENGTH) {
-            for (int i = 0; i < upperbound; i += DOUBLE_SPECIES_LENGTH) {
-                double tmp[4] = {0, 1, 2, 3};
-                __m256d points = _mm256_loadu_pd(&tmp[0]);
-                points = _mm256_sub_pd(points, points);
+            for (int i = 0; i < upperbound; i += DOUBLE_SPECIES_LENGTH) {\
+                std::cout << "DEBUG" << std::endl;
+
+                __m256d points = _mm256_loadu_pd((double *)&cluster_ids[i]);
                 __m256d id = _mm256_set1_pd(0);
-//                std::cout << "[";
-//                for (int k = i ; k < i + 4; k++) {
-//                    std::cout << cluster_ids[i] << ", ";
-//                }
-//                std::cout << "]" << std::endl;
-                std::cout << "[";
+                std::cout << "cluster ids: [";
+                for (int k = i ; k < i + 4; k++) {
+                    std::cout << cluster_ids[i] << ", ";
+                }
+                std::cout << "]" << std::endl;
+                std::cout << "cluster ids in vector [";
                 for (int k = 0 ; k < 4; k++) {
                     std::cout << points[i] << ", ";
                 }
                 std::cout << "]" << std::endl;
 
-                double * asaghi = new double[4];
-
-                _mm256_store_pd(asaghi, points);
-
-                for (int k = 0 ; k < 4; k++) {
-                    std::cout << asaghi[i] << ", ";
-                }
-                std::cout << "]" << std::endl;
-
                 for (int j = 0; j < n_cluster; j++) {
-                    __m256 mask = _mm256_cmp_ps(points, id, _CMP_ORD_S); // 0 -> EQ
-//                    std::cout << mask[0] << ", " << mask[1] << ", " << mask[2] << std::endl;
+                    __m256 mask = _mm256_cmp_ps(points, id, 0); // 0 -> EQ
+                    std::cout <<  "Cluster " << j << ": [" << mask[0] << ", " << mask[1] << ", " << mask[2] << ", " << mask[4] << "]" << std::endl;
 
                 }
             }
