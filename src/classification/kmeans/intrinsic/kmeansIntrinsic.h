@@ -55,11 +55,7 @@ private:
             for (int i = 0; i < upperbound; i += DOUBLE_SPECIES_LENGTH) {\
                 std::cout << "DEBUG: " << i <<  std::endl;
                 __m256d points = _mm256_loadu_pd(&this->cluster_ids[i]);
-                __m256d id = _mm256_set1_pd(i);
-                std::cout << "current id: [";
-                for (int k = i ; k < i + 4; k++) {
-                    std::cout << id[k] << ", ";
-                }
+
                 std::cout << "]" << std::endl;
                 std::cout << "cluster ids in vector [";
                 for (int k = 0 ; k < 4; k++) {
@@ -67,9 +63,15 @@ private:
                 }
                 std::cout << "]" << std::endl;
                  for (int j = 0; j < n_cluster; j++) {
-                     __m256d mask = _mm256_cmp_pd(points, id, _CMP_EQ_UQ); // 0 -> EQ
+                     __m256d id = _mm256_set1_pd(j);
+                     std::cout << "current id: [";
+                     for (int k = 0 ; k < 4; k++) {
+                         std::cout << id[k] << ", ";
+                     }
+                     std::cout << std::endl;
+                     __m256d mask = _mm256_cmp_pd(points, id, _CMP_EQ_OQ); // 0 -> EQ
                      for (int l = 0; l < 4; l++) {
-                       std::cout <<  ((1 &(long long)mask[l]) | (2 &(long long)mask[l])) << " ";
+                       std::cout <<  ((1 &(long long)mask[l]) | (2 &~(long long)mask[l])) << " ";
                      }
                      std::cout << std::endl;
 //                     std::cout <<  "Cluster " << j << ": [" <<  << ", " << mask[1] << ", " << mask[2] << ", " << mask[4] << "]" << std::endl;
