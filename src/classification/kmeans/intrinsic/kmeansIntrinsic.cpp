@@ -38,7 +38,7 @@ int main() {
 
     double pred[] = {15, 0.5};
 
-    kmeans.fit(x, 3, SIZE, DIMENSION);
+    kmeans.fit(x, 2, SIZE, DIMENSION);
     blackhole += kmeans.predict((double *)pred);
 
     std::cout << blackhole << std::endl;

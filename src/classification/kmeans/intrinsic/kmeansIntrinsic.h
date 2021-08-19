@@ -6,6 +6,7 @@
 #define BMLC_KMEANSINTRINSIC_H
 
 #include <iostream>
+#include <cstring>
 
 #ifdef __AVX__
 #include <immintrin.h>
@@ -48,29 +49,30 @@ private:
 
         //TODO vectorize
 
-        int upperbound = size - size % DOUBLE_SPECIES_LENGTH;
+        int upperbound = size - (size % DOUBLE_SPECIES_LENGTH);
         std::cout << "upperbound: " << upperbound << std::endl;
         if (n_cluster < DOUBLE_SPECIES_LENGTH) {
             for (int i = 0; i < upperbound; i += DOUBLE_SPECIES_LENGTH) {\
-                std::cout << "DEBUG" << std::endl;
-
-                __m256d points = _mm256_loadu_pd((double *)&cluster_ids[i]);
-                __m256d id = _mm256_set1_pd(0);
-                std::cout << "cluster ids: [";
+                std::cout << "DEBUG: " << i <<  std::endl;
+                __m256d points = _mm256_loadu_pd(&this->cluster_ids[i]);
+                __m256d id = _mm256_set1_pd(i);
+                std::cout << "current id: [";
                 for (int k = i ; k < i + 4; k++) {
-                    std::cout << cluster_ids[i] << ", ";
+                    std::cout << id[k] << ", ";
                 }
                 std::cout << "]" << std::endl;
                 std::cout << "cluster ids in vector [";
                 for (int k = 0 ; k < 4; k++) {
-                    std::cout << points[i] << ", ";
+                    std::cout << points[k] << ", ";
                 }
                 std::cout << "]" << std::endl;
-
-                for (int j = 0; j < n_cluster; j++) {
-                    __m256 mask = _mm256_cmp_ps(points, id, 0); // 0 -> EQ
-                    std::cout <<  "Cluster " << j << ": [" << mask[0] << ", " << mask[1] << ", " << mask[2] << ", " << mask[4] << "]" << std::endl;
-
+                 for (int j = 0; j < n_cluster; j++) {
+                     __m256d mask = _mm256_cmp_pd(points, id, _CMP_EQ_UQ); // 0 -> EQ
+                     for (int l = 0; l < 4; l++) {
+                       std::cout <<  ((1 &(long long)mask[l]) | (2 &(long long)mask[l])) << " ";
+                     }
+                     std::cout << std::endl;
+//                     std::cout <<  "Cluster " << j << ": [" <<  << ", " << mask[1] << ", " << mask[2] << ", " << mask[4] << "]" << std::endl;
                 }
             }
         }
@@ -183,6 +185,8 @@ public:
 
         this->cluster_ids = new double[size];
 
+        std::memset(cluster_ids, 0, size * sizeof(double));
+
         fixedCentroid(x);
 
         while (true) {
@@ -192,7 +196,7 @@ public:
 
             for (int i = 0; i < this->size; ++i) {
                 double min = distanceMatrix[i][0];
-                int min_pos = 0;
+                double min_pos = 0;
 
                 #pragma GCC ivdep loop vectorize(enable) interleave(enable)
                 for (int j = 1; j < this->n_cluster; j++) {
