@@ -8,7 +8,7 @@
 #pragma GCC optimize("O3","unroll-loops","omit-frame-pointer","inline") //Optimization flags
 #pragma GCC option("arch=native","tune=native","no-zero-upper") //Enable AVX
 #pragma GCC target("avx")  //Enable AVX
-
+#include <cstring>
 #include <iostream>
 template <typename X>
 class KmeansPragma {
@@ -166,7 +166,6 @@ public:
             }
 
             recomputeCentroid(x, this->centroids);
-//            this->centroids = new_centroids;
 
             if (converged) break;
         }
@@ -179,10 +178,6 @@ public:
         }
         delete [] this->distanceMatrix;
 
-//        for (int i = 0; i < n_cluster; ++i) {
-//            delete [] this->centroids[i];
-//        }
-//        delete [] this->centroids;
         delete [] this->cluster_ids;
     }
 

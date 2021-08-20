@@ -7,6 +7,8 @@
 
 #include <iostream>
 #include <cstring>
+#include <cfloat>
+
 
 #ifdef __AVX__
 #include <immintrin.h>
@@ -22,8 +24,9 @@ private:
     int n_cluster = 0;
     double ** distanceMatrix;
     double ** centroids;
-    double * cluster_ids;
+    float * cluster_ids;
     int DOUBLE_SPECIES_LENGTH = 4;
+    int INTEGER_SPECIES_LENGTH = 8;
 
     void fixedCentroid(double ** x) {
         int dist = this->size / this->n_cluster;
@@ -41,59 +44,64 @@ private:
         for (int i = 0; i < this->n_cluster; ++i) {
             medeoids[i] = new double[this->dimension];
         }
-        int * cluster_sizes = new int[n_cluster];
+        double * cluster_sizes = new double[n_cluster];
 
         for (int i = 0; i < n_cluster ; i++) {
             cluster_sizes[i] = 0;
         }
 
-        //TODO vectorize
-
-        int upperbound = size - (size % DOUBLE_SPECIES_LENGTH);
-        std::cout << "upperbound: " << upperbound << std::endl;
-        if (n_cluster < DOUBLE_SPECIES_LENGTH) {
-            for (int i = 0; i < upperbound; i += DOUBLE_SPECIES_LENGTH) {\
-                std::cout << "DEBUG: " << i <<  std::endl;
-                __m256d points = _mm256_loadu_pd(&this->cluster_ids[i]);
-
-                std::cout << "]" << std::endl;
-                std::cout << "cluster ids in vector [";
-                for (int k = 0 ; k < 4; k++) {
-                    std::cout << points[k] << ", ";
-                }
-                std::cout << "]" << std::endl;
+        int upperbound = size - (size % (INTEGER_SPECIES_LENGTH));
+        int i = 0;
+        if (false && n_cluster < INTEGER_SPECIES_LENGTH) { // mask is not optimized therefore skip this loop
+            for (; i < upperbound; i += INTEGER_SPECIES_LENGTH) {\
+                __m256 points = _mm256_loadu_ps((float *)&cluster_ids[i]);
                  for (int j = 0; j < n_cluster; j++) {
-                     __m256d id = _mm256_set1_pd(j);
-                     std::cout << "current id: [";
-                     for (int k = 0 ; k < 4; k++) {
-                         std::cout << id[k] << ", ";
+                     __m256 id = _mm256_set1_ps(j);
+                     __m256 mask = _mm256_cmp_ps(points, id, _CMP_EQ_OQ); // 0 -> EQ
+                     // TODO find way to vectorize this loop <- reduce function
+                     #pragma GCC ivdep loop vectorize(enable) interleave(enable)
+                     for (int l = 0; l < INTEGER_SPECIES_LENGTH; l++) {
+                         if (mask[l] != 0) {
+                             cluster_sizes[j] += 1;
+                         }
                      }
-                     std::cout << std::endl;
-                     __m256d mask = _mm256_cmp_pd(points, id, _CMP_EQ_OQ); // 0 -> EQ
-                     for (int l = 0; l < 4; l++) {
-                       std::cout <<  ((1 &(long long)mask[l]) | (2 &~(long long)mask[l])) << " ";
-                     }
-                     std::cout << std::endl;
-//                     std::cout <<  "Cluster " << j << ": [" <<  << ", " << mask[1] << ", " << mask[2] << ", " << mask[4] << "]" << std::endl;
                 }
             }
         }
 
-        for (int i = 0; i < this->size; i++) {
+        for (; i < this->size; i++) {
             cluster_sizes[(int)cluster_ids[i]] += 1;
         }
 
-        //TODO vectorize
-        for (int i = 0; i < this->n_cluster; ++i) {
+        upperbound =  dimension - (dimension % (DOUBLE_SPECIES_LENGTH));
+        i = 0;
+        for (; i < this->n_cluster; ++i) {
+            __m256d medeoid = _mm256_setzero_pd();
+            int k = 0;
+            for(; k < upperbound; k += DOUBLE_SPECIES_LENGTH) {
+                for (int j = 0; j < size; j++) {
+                    if (i == cluster_ids[i]) {
+                        medeoid = _mm256_add_pd(medeoid, _mm256_loadu_pd(&x[j][k]));
+                    }
+                }
+
+
+                medeoid = _mm256_div_pd(medeoid, _mm256_set1_pd(cluster_sizes[i]));
+                for (int j  = 0; j < DOUBLE_SPECIES_LENGTH; j++) {
+                    medeoids[i][k+j] = medeoid[j];
+                }
+            }
+
             for (int j = 0; j < this->size; j++) {
                 if (i == this->cluster_ids[j]) {
-                    #pragma GCC ivdep loop vectorize(enable) interleave(enable)
-                    for (int k = 0; k < this->dimension; k++) {
-                        medeoids[i][k] += x[j][k] / cluster_sizes[i];
+                    for (int dim = k; dim < this->dimension; dim++) {
+                        medeoids[i][dim] += x[j][dim] / cluster_sizes[i];
                     }
                 }
             }
         }
+
+
 
         double ** medeoidDistanceMatrix = new double *[this->n_cluster];
         for (int i = 0; i < n_cluster; ++i) {
@@ -104,14 +112,9 @@ private:
 
 
         for (int i = 0; i < this->n_cluster; ++i) {
-            double min_dist = 1000;
-            #pragma GCC ivdep loop vectorize(enable) interleave(enable)
-            for (int j = 0; j < this->size; ++j) {
-                if (medeoidDistanceMatrix[i][j] < min_dist) {
-                    min_dist = medeoidDistanceMatrix[i][j];
-                    centroids[i] = x[j];
-                }
-            }
+
+            int index = findMinIndex(medeoidDistanceMatrix[i], this->size);
+            centroids[i] = x[index];
         }
 
 
@@ -169,6 +172,52 @@ private:
         }
     }
 
+    int findMinIndex(double * data, int sz) {
+        int index = 0;
+        int i = 0;
+        double min = DBL_MAX;
+
+        if (false && DOUBLE_SPECIES_LENGTH < sz) { // mask is not optimized therefore skip this loop
+            double * ind = new double[DOUBLE_SPECIES_LENGTH];
+            for (int j = 0; j < DOUBLE_SPECIES_LENGTH; j++) {
+                ind[j] = j;
+            }
+
+            int upperbound = this->size - this->size * DOUBLE_SPECIES_LENGTH;
+            __m256d minValues = _mm256_loadu_pd(&data[0]);
+            __m256d indices = _mm256_loadu_pd(&ind[0]);
+            __m256d currentIndices = indices;
+            __m256d increment = _mm256_set1_pd(DOUBLE_SPECIES_LENGTH);
+            for (i = DOUBLE_SPECIES_LENGTH; i < upperbound; i+=DOUBLE_SPECIES_LENGTH) {
+                __m256d values = _mm256_loadu_pd(&data[i]);
+                __m256d less = _mm256_cmp_pd(values, minValues, _CMP_LT_OS);
+                minValues = _mm256_blendv_pd(minValues, values, less);
+                currentIndices = _mm256_add_pd(currentIndices, increment);
+                indices = _mm256_blendv_pd(indices, currentIndices, less);
+            }
+
+            for (int j = 0; j < DOUBLE_SPECIES_LENGTH; j++) {
+                if (minValues[j] < min) {
+                    min = minValues[j];
+                    index = j;
+                }
+            }
+
+            index = indices[index];
+
+
+
+        }
+
+        for (; i < sz; ++i) {
+            if (data[i] < min) {
+                min = data[i];
+                index = i;
+            }
+        }
+        return index;
+    }
+
 public:
     void fit(double ** x, const int n_cluster, const int size, const int dimension) {
         this->n_cluster = n_cluster;
@@ -185,9 +234,9 @@ public:
             this->centroids[i] = new double[dimension];
         }
 
-        this->cluster_ids = new double[size];
+        this->cluster_ids = new float [size];
 
-        std::memset(cluster_ids, 0, size * sizeof(double));
+        std::memset(cluster_ids, 0, size * sizeof(float));
 
         fixedCentroid(x);
 
@@ -197,22 +246,12 @@ public:
             l2Matrix(x, this->centroids, this->distanceMatrix);
 
             for (int i = 0; i < this->size; ++i) {
-                double min = distanceMatrix[i][0];
-                double min_pos = 0;
+                int current_cluster = cluster_ids[i];
+                cluster_ids[i] = findMinIndex(distanceMatrix[i], this->n_cluster);
 
-                #pragma GCC ivdep loop vectorize(enable) interleave(enable)
-                for (int j = 1; j < this->n_cluster; j++) {
-                    if (distanceMatrix[i][j] < min) {
-                        min = distanceMatrix[i][j];
-                        min_pos = j;
-                    }
-                }
-
-                if (this->cluster_ids[i] != min_pos) {
+                if (this->cluster_ids[i] != current_cluster) {
                     converged = false;
                 }
-
-                this->cluster_ids[i] = min_pos;
 
             }
             recomputeCentroid(x, this->centroids);
