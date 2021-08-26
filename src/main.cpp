@@ -7,7 +7,8 @@
 #include "LinearRegression/vector/vector_linear_regression.h"
 #include "constants/constants.h"
 #include "LinearRegression/intrinsic_vector/long/long_intrinsic_vector_linear_regression.h"
-#include "classification/kmeans/benchmark.h"
+//#include "classification/kmeans/benchmark.h"
+#include "classification/SVM/benchmark.h"
 
 //// SCALAR
 //static void BM_LR_DOUBLE(benchmark::State& state) {
